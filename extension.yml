@@ -1,0 +1,58 @@
+schema_version: "1.0"
+
+extension:
+  id: "linear"
+  name: "Linear Integration"
+  version: "1.0.0"
+  description: "Linear-first spec-driven development — specs, plans, and tasks live as Linear issues and comments"
+  author: "Julio Gudino"
+  repository: "https://github.com/julsgud/spec-kit-linear"
+  license: "MIT"
+  homepage: "https://github.com/julsgud/spec-kit-linear"
+
+requires:
+  speckit_version: ">=0.1.0"
+
+provides:
+  commands:
+    - name: "speckit.linear.specify"
+      file: "commands/specify.md"
+      description: "Read a Linear issue and synthesize a structured specification as a comment"
+
+    - name: "speckit.linear.clarify"
+      file: "commands/clarify.md"
+      description: "Identify gaps and questions in the specification"
+
+    - name: "speckit.linear.analyze"
+      file: "commands/analyze.md"
+      description: "Cross-artifact consistency and coverage analysis"
+
+    - name: "speckit.linear.plan"
+      file: "commands/plan.md"
+      description: "Create a technical implementation plan from the specification"
+
+    - name: "speckit.linear.tasks"
+      file: "commands/tasks.md"
+      description: "Break the plan into Linear child issues"
+
+    - name: "speckit.linear.implement"
+      file: "commands/implement.md"
+      description: "Guide implementation from Linear task issues"
+
+  config:
+    - name: "linear-config.yml"
+      template: "linear-config.template.yml"
+      description: "Linear integration configuration"
+      required: true
+
+hooks:
+  after_tasks:
+    command: "speckit.linear.tasks"
+    optional: true
+    prompt: "Create Linear child issues from plan?"
+
+tags:
+  - "issue-tracking"
+  - "linear"
+  - "project-management"
+  - "spec-driven"

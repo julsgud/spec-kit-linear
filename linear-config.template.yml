@@ -1,0 +1,28 @@
+# Linear integration configuration for spec-kit
+# Copy to .specify/extensions/linear/linear-config.yml and customize
+
+# MCP server name — varies by setup
+# Common values: "claude_ai_Linear", "linear"
+mcp_server: "claude_ai_Linear"
+
+# Linear team name (must match exactly)
+team: ""
+
+# Optional: Linear project name for grouping issues
+project: ""
+
+defaults:
+  # Labels to apply to child issues created by /tasks
+  labels: []
+
+  # Priority for child issues (0=None, 1=Urgent, 2=High, 3=Normal, 4=Low)
+  priority: 3
+
+  # Initial status for child issues created by /tasks
+  status: "Backlog"
+
+  # Copy parent issue's labels to child issues
+  inherit_labels: true
+
+# Prompt to create a git branch on /specify (false = skip entirely)
+auto_branch: true
