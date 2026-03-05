@@ -7,7 +7,7 @@ Linear integration extension for [spec-kit](https://github.com/github/spec-kit).
 You brain-dump requirements into a Linear issue, then run spec-kit commands to progressively enrich it:
 
 ```
-specify  →  clarify  →  analyze  →  plan  →  tasks  →  implement
+specify  →  clarify  →  analyze  →  plan  →  checklist  →  tasks  →  implement
 ```
 
 Each command reads the issue and previous artifacts, then posts a structured comment back to the issue. The `/tasks` command creates child issues. The `/implement` command reads everything and guides code implementation.
@@ -110,6 +110,16 @@ Creates a technical implementation plan with ordered, dependency-aware tasks.
 
 Requires: specification comment exists on the issue.
 
+### `/speckit.linear.checklist <issue>`
+
+Generates a requirements quality checklist that validates whether the specification is complete, clear, consistent, and measurable. Items are interactive checkboxes in Linear.
+
+```
+/speckit.linear.checklist BOT-140
+```
+
+Requires: specification comment exists on the issue. Optionally reads clarifications, analysis, and plan for deeper validation.
+
 ### `/speckit.linear.tasks <issue>`
 
 Creates Linear child issues from the plan. Idempotent — safe to re-run.
@@ -140,8 +150,9 @@ Typical usage:
 2. /speckit.linear.specify BOT-140        → structured spec comment
 3. /speckit.linear.clarify BOT-140        → gaps and questions (optional)
 4. /speckit.linear.plan BOT-140           → implementation plan
-5. /speckit.linear.tasks BOT-140          → child issues created
-6. /speckit.linear.implement BOT-141      → guided implementation per task
+5. /speckit.linear.checklist BOT-140      → requirements quality checklist (optional)
+6. /speckit.linear.tasks BOT-140          → child issues created
+7. /speckit.linear.implement BOT-141      → guided implementation per task
 ```
 
 `clarify` and `analyze` are optional — `plan` will work with just a specification, though results improve with more context.

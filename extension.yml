@@ -31,6 +31,10 @@ provides:
       file: "commands/plan.md"
       description: "Create a technical implementation plan from the specification"
 
+    - name: "speckit.linear.checklist"
+      file: "commands/checklist.md"
+      description: "Generate a requirements quality checklist for the specification"
+
     - name: "speckit.linear.tasks"
       file: "commands/tasks.md"
       description: "Break the plan into Linear child issues"
