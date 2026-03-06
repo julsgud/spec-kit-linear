@@ -144,3 +144,11 @@ Summarize what was done:
 - Plan version: `v{N}`
 - Number of tasks: {count}
 - Task list: brief one-line summary of each task
+
+Then suggest the next step:
+
+```
+Next steps — pick one:
+  /speckit.linear.checklist  — validate requirements quality before tasks
+  /speckit.linear.tasks      — create Linear child issues from this plan
+```

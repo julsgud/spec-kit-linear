@@ -126,3 +126,12 @@ Summarize what was done:
 - Specification version reviewed: `v{M}`
 - Clarifications version: `v{N}`
 - Number of items identified per category
+
+Then suggest the next step:
+
+```
+Next steps — pick one:
+  /speckit.linear.analyze    — cross-artifact consistency check
+  /speckit.linear.plan       — create implementation plan
+  /speckit.linear.specify    — re-run specify to address clarification findings
+```

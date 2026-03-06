@@ -124,3 +124,10 @@ If all tasks already existed, report:
 ```
 All {total} tasks already exist as child issues of {ID}. Nothing to create.
 ```
+
+Then suggest the next step:
+
+```
+Next step:
+  /speckit.linear.implement  — start implementing a task (infers issue from branch)
+```

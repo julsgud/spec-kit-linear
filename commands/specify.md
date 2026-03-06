@@ -125,3 +125,11 @@ Summarize what was done:
 - Specification version: `v{N}`
 - Comment posted: yes/no
 - Branch: created / already exists / skipped
+
+Then suggest the next step:
+
+```
+Next steps — pick one:
+  /speckit.linear.clarify    — identify gaps and open questions
+  /speckit.linear.plan       — jump straight to implementation planning
+```
