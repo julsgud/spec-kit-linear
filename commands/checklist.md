@@ -137,3 +137,11 @@ Summarize what was done:
 - Artifacts used: list which artifacts informed the checklist
 - Checklist version: `v{N}`
 - Item counts: {count} per dimension, {total} total
+
+Then suggest the next step:
+
+```
+Next steps — pick one:
+  /speckit.linear.tasks      — create Linear child issues from the plan
+  /speckit.linear.specify    — re-run specify to address checklist gaps
+```

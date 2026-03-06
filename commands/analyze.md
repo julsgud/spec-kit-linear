@@ -127,3 +127,11 @@ Summarize what was done:
 - Artifacts reviewed: list which artifacts were found and their versions
 - Analysis version: `v{N}`
 - Overall readiness: Ready for planning / Needs attention
+
+Then suggest the next step:
+
+```
+Next steps — pick one:
+  /speckit.linear.plan       — create implementation plan
+  /speckit.linear.specify    — re-run specify to address analysis findings
+```
