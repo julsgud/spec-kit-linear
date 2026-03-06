@@ -24,5 +24,21 @@ defaults:
   # Copy parent issue's labels to child issues
   inherit_labels: true
 
-# Prompt to create a git branch on /specify (false = skip entirely)
-auto_branch: true
+# Autonomous resolution settings
+# When enabled, commands dispatch sub-agents to research findings before posting artifacts
+resolution:
+  enabled: true                    # toggle resolution on/off
+  strategies: [codebase, linear, web]  # research order: codebase exploration, related Linear issues, web search
+  max_agents: 10                   # cap sub-agents per command
+  auto_resolve_threshold: "high"   # "high" = only RESOLVED; "medium" = RESOLVED + SUGGESTION
+
+# Pipeline orchestration settings
+# Controls behavior of /speckit.linear.pipeline
+pipeline:
+  steps: [specify, clarify, analyze, plan, checklist]
+  chain_breaks:
+    new_dependencies: true         # pause when new dependencies are discovered
+    scope_expansion: true          # pause when scope grows beyond original issue
+    high_risk_threshold: 3         # pause when risk items exceed this count
+  post_summary: true               # post pipeline summary comment when complete
+  skip_completed: true             # skip steps that already have artifacts

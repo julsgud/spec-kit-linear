@@ -17,6 +17,14 @@ specify → clarify → analyze → plan → checklist → tasks → implement
 
 Each command reads the issue and previous artifacts, then posts a versioned comment back. Re-running a command creates a new version (v1 → v2 → v3) — previous versions are preserved.
 
+### Clipboard handoff
+
+Every command copies the recommended next command (with the issue ID) to your clipboard. Just paste to continue through the workflow — no need to remember command names or re-type identifiers.
+
+### Branching
+
+Branches are created at `implement` time (not during `specify`), using the `branchName` that Linear auto-generates for each child task issue. This means no empty branches sitting around before any code is written.
+
 ## Installation
 
 ```bash
@@ -27,7 +35,7 @@ Requires a Linear MCP server connected to your AI assistant.
 
 ## Commands
 
-All commands accept a Linear issue URL or identifier (e.g. `BOT-140`). For all commands except `specify`, if no argument is given the issue is inferred from the current git branch.
+All commands accept a Linear issue URL or identifier (e.g. `BOT-140`). If no argument is given, the issue is inferred from the current git branch.
 
 | Command | What it does | Requires |
 |---------|-------------|----------|
@@ -37,7 +45,7 @@ All commands accept a Linear issue URL or identifier (e.g. `BOT-140`). For all c
 | `/speckit.linear.plan` | Technical implementation plan with ordered tasks | specification |
 | `/speckit.linear.checklist` | Requirements quality checklist (interactive checkboxes) | specification |
 | `/speckit.linear.tasks` | Create Linear child issues from the plan (idempotent) | plan |
-| `/speckit.linear.implement` | Guide code implementation per task | specification + plan |
+| `/speckit.linear.implement` | Create branch from Linear + guide code implementation | specification + plan |
 
 `clarify`, `analyze`, and `checklist` are optional — `plan` works with just a specification, though results improve with more context.
 

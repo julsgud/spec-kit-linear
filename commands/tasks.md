@@ -129,5 +129,12 @@ Then suggest the next step:
 
 ```
 Next step:
-  /speckit.linear.implement  — start implementing a task (infers issue from branch)
+  /speckit.linear.implement {first-child-ID}  — start implementing the first task
 ```
+
+Then copy the recommended next command to the user's clipboard using the first child task's issue ID (by T-number ordering). Detect the platform and use the appropriate command:
+- macOS: `printf '%s' '/speckit.linear.implement {first-child-ID}' | pbcopy`
+- Linux: `printf '%s' '/speckit.linear.implement {first-child-ID}' | xclip -selection clipboard`
+- Windows: `printf '%s' '/speckit.linear.implement {first-child-ID}' | clip`
+
+Print: `Copied to clipboard: /speckit.linear.implement {first-child-ID}`
