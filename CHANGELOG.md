@@ -5,7 +5,7 @@
 ### Added
 
 - Initial release of spec-kit-linear
-- Six commands: specify, clarify, analyze, plan, tasks, implement
+- Seven commands: specify, clarify, analyze, plan, checklist, tasks, implement
 - Linear-first workflow: issues and comments as source of truth
 - Sentinel-based comment discovery with version tracking
 - Idempotent child issue creation via /tasks
