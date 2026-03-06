@@ -1,5 +1,10 @@
 # spec-kit-linear
 
+[![CI](https://github.com/julsgud/spec-kit-linear/actions/workflows/ci.yml/badge.svg)](https://github.com/julsgud/spec-kit-linear/actions/workflows/ci.yml)
+[![spec-kit extension](https://img.shields.io/badge/spec--kit-extension-blue)](https://github.com/github/spec-kit)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Latest Release](https://img.shields.io/github/v/release/julsgud/spec-kit-linear)](https://github.com/julsgud/spec-kit-linear/releases)
+
 Linear integration extension for [spec-kit](https://github.com/github/spec-kit). Specs, plans, and tasks live as Linear issues and comments — Linear is the source of truth.
 
 ## How it works
@@ -35,6 +40,10 @@ All commands accept a Linear issue URL or identifier (e.g. `BOT-140`). For all c
 | `/speckit.linear.implement` | Guide code implementation per task | specification + plan |
 
 `clarify`, `analyze`, and `checklist` are optional — `plan` works with just a specification, though results improve with more context.
+
+## Documentation
+
+See [docs/usage.md](docs/usage.md) for the full usage guide — setup, workflow walkthrough, configuration reference, and troubleshooting.
 
 ## License
 

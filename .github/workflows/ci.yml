@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required files exist
+        run: |
+          missing=()
+          for f in extension.yml README.md LICENSE CHANGELOG.md linear-config.template.yml; do
+            [ -f "$f" ] || missing+=("$f")
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "::error::Missing required files: ${missing[*]}"
+            exit 1
+          fi
+          echo "All required files present."
+
+      - name: Validate extension.yml syntax
+        run: |
+          python3 -c "
+          import yaml, sys
+          with open('extension.yml') as f:
+              data = yaml.safe_load(f)
+          if not data:
+              print('::error::extension.yml is empty')
+              sys.exit(1)
+          print('YAML syntax valid.')
+          "
+
+      - name: Validate extension manifest
+        run: |
+          python3 -c "
+          import yaml, sys, re, os
+
+          with open('extension.yml') as f:
+              data = yaml.safe_load(f)
+
+          errors = []
+
+          # Check required top-level keys
+          for key in ['extension', 'requires', 'provides']:
+              if key not in data:
+                  errors.append(f'Missing top-level key: {key}')
+
+          ext = data.get('extension', {})
+
+          # Check required extension fields
+          for field in ['id', 'name', 'version', 'description', 'author', 'repository', 'license']:
+              if field not in ext:
+                  errors.append(f'Missing extension.{field}')
+
+          # Validate id format
+          ext_id = ext.get('id', '')
+          if not re.match(r'^[a-z0-9-]+$', ext_id):
+              errors.append(f'Invalid extension id \"{ext_id}\" — must match ^[a-z0-9-]+$')
+
+          # Validate version format
+          version = ext.get('version', '')
+          if not re.match(r'^\d+\.\d+\.\d+$', version):
+              errors.append(f'Invalid version \"{version}\" — must be semver (X.Y.Z)')
+
+          # Validate description length
+          desc = ext.get('description', '')
+          if len(desc) > 200:
+              errors.append(f'Description too long ({len(desc)} chars, max 200)')
+
+          # Validate commands
+          commands = data.get('provides', {}).get('commands', [])
+          if not commands:
+              errors.append('No commands defined in provides.commands')
+
+          for cmd in commands:
+              name = cmd.get('name', '')
+              if not re.match(r'^speckit\.[a-z0-9-]+\.[a-z0-9-]+$', name):
+                  errors.append(f'Invalid command name \"{name}\" — must match speckit.{{id}}.{{name}}')
+
+              filepath = cmd.get('file', '')
+              if not os.path.isfile(filepath):
+                  errors.append(f'Command file not found: {filepath}')
+
+          if errors:
+              for e in errors:
+                  print(f'::error::{e}')
+              sys.exit(1)
+
+          print(f'Manifest valid: {len(commands)} commands.')
+          "
+
+      - name: Validate command frontmatter
+        run: |
+          python3 -c "
+          import yaml, sys, os, glob
+
+          errors = []
+          commands = glob.glob('commands/*.md')
+
+          if not commands:
+              errors.append('No command files found in commands/')
+
+          for path in sorted(commands):
+              with open(path) as f:
+                  content = f.read()
+
+              if not content.startswith('---'):
+                  errors.append(f'{path}: missing YAML frontmatter')
+                  continue
+
+              parts = content.split('---', 2)
+              if len(parts) < 3:
+                  errors.append(f'{path}: malformed frontmatter (no closing ---)')
+                  continue
+
+              try:
+                  meta = yaml.safe_load(parts[1])
+              except yaml.YAMLError as e:
+                  errors.append(f'{path}: invalid YAML in frontmatter: {e}')
+                  continue
+
+              if not meta or 'description' not in meta:
+                  errors.append(f'{path}: frontmatter missing \"description\" field')
+                  continue
+
+              print(f'{path}: OK')
+
+          if errors:
+              for e in errors:
+                  print(f'::error::{e}')
+              sys.exit(1)
+
+          print(f'All {len(commands)} command files valid.')
+          "
