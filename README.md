@@ -15,7 +15,7 @@ Brain-dump requirements into a Linear issue, then run commands to progressively 
 specify → clarify → analyze → plan → checklist → tasks → implement
 ```
 
-Each command reads the issue and previous artifacts, then posts a versioned comment back. Re-running a command creates a new version (v1 → v2 → v3) — previous versions are preserved.
+Each command reads the issue and previous artifacts, then posts a versioned comment back. Re-running a command creates a new version (v1 → v2 → v3) — previous versions are preserved. After each command, the recommended next command is copied to your clipboard — just paste to continue.
 
 ## Installation
 
@@ -37,7 +37,7 @@ All commands accept a Linear issue URL or identifier (e.g. `BOT-140`). For all c
 | `/speckit.linear.plan` | Technical implementation plan with ordered tasks | specification |
 | `/speckit.linear.checklist` | Requirements quality checklist (interactive checkboxes) | specification |
 | `/speckit.linear.tasks` | Create Linear child issues from the plan (idempotent) | plan |
-| `/speckit.linear.implement` | Guide code implementation per task | specification + plan |
+| `/speckit.linear.implement` | Guide code implementation per task (creates branch from Linear) | specification + plan |
 
 `clarify`, `analyze`, and `checklist` are optional — `plan` works with just a specification, though results improve with more context.
 

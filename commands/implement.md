@@ -120,7 +120,19 @@ Description:
 {task description}
 ```
 
-## Step 6: Guide implementation
+## Step 6: Git branch (single task only)
+
+This step only applies when implementing a **single child task** (not all tasks from a parent).
+
+1. The child task issue's `branchName` from Linear is already available from the `get_issue` call in Step 2.
+2. Check if the branch exists locally (`git branch --list {branchName}`) or remotely (`git branch -r --list */{branchName}`).
+3. If already on that branch → do nothing.
+4. If the branch exists but is not checked out → ask the user to switch, then `git checkout {branchName}`.
+5. If the branch does NOT exist → ask the user to create it, then `git checkout -b {branchName} main`.
+
+For **all tasks** (parent given): skip branching. Note in the output that each task gets its own branch via `/speckit.linear.implement {child-ID}`.
+
+## Step 7: Guide implementation
 
 Based on the context, provide implementation guidance:
 
@@ -142,3 +154,12 @@ After presenting context and guidance, ask the user how they want to proceed:
 - Implement the task(s) now (begin writing code)
 - Review the plan first
 - Switch to a different task
+
+If implementing a **single child task** and there is a next sibling task (by T-number ordering), copy the next implement command to the user's clipboard. Detect the platform and use the appropriate command:
+- macOS: `printf '%s' '/speckit.linear.implement {next-sibling-child-ID}' | pbcopy`
+- Linux: `printf '%s' '/speckit.linear.implement {next-sibling-child-ID}' | xclip -selection clipboard`
+- Windows: `printf '%s' '/speckit.linear.implement {next-sibling-child-ID}' | clip`
+
+Print: `Copied to clipboard: /speckit.linear.implement {next-sibling-child-ID}`
+
+If this is the last task (no next sibling), skip the clipboard step.

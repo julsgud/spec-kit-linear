@@ -3,6 +3,7 @@ description: "Create a technical implementation plan from the specification"
 tools:
   - get_issue
   - list_comments
+  - list_issues
   - save_comment
 ---
 
@@ -92,7 +93,38 @@ How should the implementation be tested? What types of tests (unit, integration,
 ### Risks and Mitigations
 Technical risks identified during planning and how to mitigate them. Incorporate any risks from the analysis artifact if present.
 
-## Step 5: Post the plan comment
+## Step 5: Resolve risks and validate tasks (autonomous resolution)
+
+Read the `resolution.enabled` setting from the extension config. If `false`, skip this step entirely.
+
+For each item in the **Risks and Mitigations** section and each task in the **Tasks** section, dispatch sub-agents (using the Agent tool) to research and validate. Respect the `resolution.max_agents` config cap.
+
+Each sub-agent should research using the strategies defined in `resolution.strategies` (in order):
+1. **codebase** — use Glob, Grep, and Read to estimate complexity, find existing code to build on, and validate task scope
+2. **linear** — use `list_issues` to check for related work or prior implementations
+3. **web** — use WebSearch and WebFetch to find architectural patterns, library recommendations, and risk mitigations
+
+For **Risks and Mitigations**, each sub-agent must return exactly one of:
+- `RESOLVED: {mitigation}` — concrete mitigation strategy found with supporting evidence
+- `SUGGESTION: {recommendation}` — potential mitigation, but needs validation
+- `NEEDS-HUMAN: {reason}` — risk requires human judgment (e.g., business decision, security review)
+
+For **Tasks**, sub-agents validate:
+- Whether existing code can be leveraged (note specific files/functions)
+- Whether the task's scope estimate is reasonable
+- Whether dependencies between tasks are correctly identified
+
+After all sub-agents complete, annotate findings inline in the plan artifact:
+- Risk resolutions: append `→ **Resolved:** {text} _(auto-resolved via {source})_`
+- Risk suggestions: append `→ **Suggested:** {text} _(confidence: medium)_`
+- Risk needs human: append `→ **Needs human input:** {reason}`
+- Task validations: append `→ **Validated:** {notes} _(auto-validated via {source})_`
+
+Filter results based on `resolution.auto_resolve_threshold`:
+- `"high"` — only RESOLVED items are treated as resolved
+- `"medium"` — both RESOLVED and SUGGESTION items are treated as resolved
+
+## Step 6: Post the plan comment
 
 Determine the version number:
 - If no previous plan comment exists → `v1`
@@ -144,6 +176,7 @@ Summarize what was done:
 - Plan version: `v{N}`
 - Number of tasks: {count}
 - Task list: brief one-line summary of each task
+- Resolution: {N} auto-resolved, {N} suggestions, {N} needs-human
 
 Then suggest the next step:
 
@@ -152,3 +185,10 @@ Next steps — pick one:
   /speckit.linear.checklist  — validate requirements quality before tasks
   /speckit.linear.tasks      — create Linear child issues from this plan
 ```
+
+Then copy the recommended next command to the user's clipboard. Detect the platform and use the appropriate command:
+- macOS: `printf '%s' '/speckit.linear.tasks {ID}' | pbcopy`
+- Linux: `printf '%s' '/speckit.linear.tasks {ID}' | xclip -selection clipboard`
+- Windows: `printf '%s' '/speckit.linear.tasks {ID}' | clip`
+
+Print: `Copied to clipboard: /speckit.linear.tasks {ID}`

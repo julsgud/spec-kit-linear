@@ -3,6 +3,7 @@ description: "Cross-artifact consistency and coverage analysis"
 tools:
   - get_issue
   - list_comments
+  - list_issues
   - save_comment
 ---
 
@@ -86,7 +87,32 @@ Specific actions to improve the artifacts before moving to planning. These might
 - Running `/speckit.linear.clarify` if not yet done
 - Manual stakeholder input needed on specific questions
 
-## Step 5: Post the analysis comment
+## Step 5: Resolve findings (autonomous resolution)
+
+Read the `resolution.enabled` setting from the extension config. If `false`, skip this step entirely.
+
+For each finding across the analysis sections (Coverage gaps, Consistency issues, Risk items, Completeness gaps, Recommendations), dispatch sub-agents (using the Agent tool) to research resolutions. Batch related findings together. Respect the `resolution.max_agents` config cap.
+
+Each sub-agent should research using the strategies defined in `resolution.strategies` (in order):
+1. **codebase** — use Glob, Grep, and Read to verify technical claims, check existing implementations, and validate coverage assertions
+2. **linear** — use `list_issues` to search for related issues that provide additional context or prior decisions
+3. **web** — use WebSearch and WebFetch to find risk mitigations, architectural patterns, and best practices
+
+Each sub-agent must return exactly one of:
+- `RESOLVED: {answer}` — confident answer found with supporting evidence
+- `SUGGESTION: {recommendation}` — reasonable default or recommendation, but not definitive
+- `NEEDS-HUMAN: {reason}` — cannot be resolved autonomously; explain why
+
+After all sub-agents complete, annotate each finding inline in the analysis artifact:
+- Resolved: append `→ **Resolved:** {text} _(auto-resolved via {source})_`
+- Suggested: append `→ **Suggested:** {text} _(confidence: medium)_`
+- Needs human: append `→ **Needs human input:** {reason}`
+
+Filter results based on `resolution.auto_resolve_threshold`:
+- `"high"` — only RESOLVED items are treated as resolved
+- `"medium"` — both RESOLVED and SUGGESTION items are treated as resolved
+
+## Step 6: Post the analysis comment
 
 Determine the version number:
 - If no previous analysis comment exists → `v1`
@@ -127,6 +153,7 @@ Summarize what was done:
 - Artifacts reviewed: list which artifacts were found and their versions
 - Analysis version: `v{N}`
 - Overall readiness: Ready for planning / Needs attention
+- Resolution: {N} auto-resolved, {N} suggestions, {N} needs-human
 
 Then suggest the next step:
 
@@ -135,3 +162,10 @@ Next steps — pick one:
   /speckit.linear.plan       — create implementation plan
   /speckit.linear.specify    — re-run specify to address analysis findings
 ```
+
+Then copy the recommended next command to the user's clipboard. Detect the platform and use the appropriate command:
+- macOS: `printf '%s' '/speckit.linear.plan {ID}' | pbcopy`
+- Linux: `printf '%s' '/speckit.linear.plan {ID}' | xclip -selection clipboard`
+- Windows: `printf '%s' '/speckit.linear.plan {ID}' | clip`
+
+Print: `Copied to clipboard: /speckit.linear.plan {ID}`

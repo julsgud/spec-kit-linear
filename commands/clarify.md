@@ -3,6 +3,7 @@ description: "Identify gaps and questions in the specification"
 tools:
   - get_issue
   - list_comments
+  - list_issues
   - save_comment
 ---
 
@@ -82,7 +83,36 @@ Any requirements that conflict with each other or with known constraints.
 ### Suggested Clarifications
 For each gap identified, propose a specific question to ask the stakeholder, or suggest a reasonable default if one exists.
 
-## Step 5: Post the clarifications comment
+## Step 5: Resolve findings (autonomous resolution)
+
+Read the `resolution.enabled` setting from the extension config. If `false`, skip this step entirely.
+
+For each finding across all six sections (Ambiguities, Missing Details, Edge Cases, Dependencies, Contradictions, Suggested Clarifications), dispatch sub-agents (using the Agent tool) to research resolutions. Batch related findings together. Respect the `resolution.max_agents` config cap.
+
+Each sub-agent should research using the strategies defined in `resolution.strategies` (in order), with section-specific focus:
+
+- **Ambiguities** → search codebase for existing patterns that resolve the ambiguity; search web for best practices
+- **Missing Details** → search codebase for existing implementations that fill the gap
+- **Edge Cases** → search web for common patterns in similar systems; search codebase for existing error handling
+- **Dependencies** → search codebase (package.json, imports, configs) for existing dependencies; search web for library documentation
+- **Contradictions** → cross-reference the issue description, specification, and related Linear issues for the intended behavior
+- **Suggested Clarifications** → convert vague suggestions into concrete defaults via codebase conventions and web best practices
+
+Each sub-agent must return exactly one of:
+- `RESOLVED: {answer}` — confident answer found with supporting evidence
+- `SUGGESTION: {recommendation}` — reasonable default or recommendation, but not definitive
+- `NEEDS-HUMAN: {reason}` — cannot be resolved autonomously; explain why
+
+After all sub-agents complete, annotate each finding inline in the clarifications artifact:
+- Resolved: append `→ **Resolved:** {text} _(auto-resolved via {source})_`
+- Suggested: append `→ **Suggested:** {text} _(confidence: medium)_`
+- Needs human: append `→ **Needs human input:** {reason}`
+
+Filter results based on `resolution.auto_resolve_threshold`:
+- `"high"` — only RESOLVED items are treated as resolved
+- `"medium"` — both RESOLVED and SUGGESTION items are treated as resolved
+
+## Step 6: Post the clarifications comment
 
 Determine the version number:
 - If no previous clarifications comment exists → `v1`
@@ -126,6 +156,7 @@ Summarize what was done:
 - Specification version reviewed: `v{M}`
 - Clarifications version: `v{N}`
 - Number of items identified per category
+- Resolution: {N} auto-resolved, {N} suggestions, {N} needs-human
 
 Then suggest the next step:
 
@@ -135,3 +166,10 @@ Next steps — pick one:
   /speckit.linear.plan       — create implementation plan
   /speckit.linear.specify    — re-run specify to address clarification findings
 ```
+
+Then copy the recommended next command to the user's clipboard. Detect the platform and use the appropriate command:
+- macOS: `printf '%s' '/speckit.linear.analyze {ID}' | pbcopy`
+- Linux: `printf '%s' '/speckit.linear.analyze {ID}' | xclip -selection clipboard`
+- Windows: `printf '%s' '/speckit.linear.analyze {ID}' | clip`
+
+Print: `Copied to clipboard: /speckit.linear.analyze {ID}`

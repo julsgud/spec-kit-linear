@@ -3,6 +3,7 @@ description: "Read a Linear issue and synthesize a structured specification as a
 tools:
   - get_issue
   - list_comments
+  - list_issues
   - save_comment
 ---
 
@@ -66,7 +67,34 @@ Any technical constraints, dependencies, or architectural considerations mention
 ### Open Questions
 Anything unclear or ambiguous in the original issue that needs clarification. If there are no open questions, omit this section.
 
-## Step 5: Post the specification comment
+## Step 5: Resolve open questions (autonomous resolution)
+
+Read the `resolution.enabled` setting from the extension config. If `false`, skip this step entirely.
+
+For each item in the **Open Questions** section from Step 4, dispatch a sub-agent (using the Agent tool) to research a resolution. Respect the `resolution.max_agents` config cap — if there are more open questions than the cap, batch related questions together.
+
+Each sub-agent should research using the strategies defined in `resolution.strategies` (in order):
+1. **codebase** — use Glob, Grep, and Read to search the codebase for existing conventions, patterns, or implementations that answer the question
+2. **linear** — use `list_issues` to search for related Linear issues that may contain prior decisions or context
+3. **web** — use WebSearch and WebFetch to find best practices and common patterns
+
+Each sub-agent must return exactly one of:
+- `RESOLVED: {answer}` — confident answer found with supporting evidence
+- `SUGGESTION: {recommendation}` — reasonable default or recommendation, but not definitive
+- `NEEDS-HUMAN: {reason}` — cannot be resolved autonomously; explain why
+
+After all sub-agents complete, annotate each open question inline in the specification:
+- Resolved: append `→ **Resolved:** {text} _(auto-resolved via {source})_`
+- Suggested: append `→ **Suggested:** {text} _(confidence: medium)_`
+- Needs human: append `→ **Needs human input:** {reason}`
+
+Remove fully resolved questions from the Open Questions section and move them to a new **Resolved Questions** subsection within the specification. Questions with suggestions or needing human input remain in Open Questions with their annotations.
+
+Filter results based on `resolution.auto_resolve_threshold`:
+- `"high"` — only RESOLVED items are treated as resolved
+- `"medium"` — both RESOLVED and SUGGESTION items are treated as resolved
+
+## Step 6: Post the specification comment
 
 Determine the version number:
 - If no previous specification comment exists → `v1`
@@ -103,28 +131,13 @@ Call `save_comment` to post this as a new comment on the issue.
 
 If a previous version exists, edit the previous version's comment to prepend `**(superseded by v{N})**` on the line immediately after the `## Specification` header.
 
-## Step 6: Git branch (optional)
-
-Read the `auto_branch` setting from the extension config. If `auto_branch` is `true`:
-
-1. Construct the branch name: `{issue-identifier}-{slugified-title}` (lowercase, hyphens, truncated to 244 bytes)
-2. Check if the branch already exists locally (`git branch --list`) or remotely (`git branch -r --list`)
-3. If the branch does NOT exist, ask the user:
-   ```
-   Branch `{branch-name}` does not exist. Create it? [Y/n]
-   ```
-4. If confirmed, create and checkout the branch: `git checkout -b {branch-name}`
-5. If the branch already exists, inform the user: `Branch {branch-name} already exists.`
-
-If `auto_branch` is `false` or the user passes `--no-branch`, skip this step entirely.
-
 ## Output
 
 Summarize what was done:
 - Issue read: `{ID} — {title}`
 - Specification version: `v{N}`
 - Comment posted: yes/no
-- Branch: created / already exists / skipped
+- Resolution: {N} auto-resolved, {N} suggestions, {N} needs-human
 
 Then suggest the next step:
 
@@ -133,3 +146,10 @@ Next steps — pick one:
   /speckit.linear.clarify    — identify gaps and open questions
   /speckit.linear.plan       — jump straight to implementation planning
 ```
+
+Then copy the recommended next command to the user's clipboard. Detect the platform and use the appropriate command:
+- macOS: `printf '%s' '/speckit.linear.clarify {ID}' | pbcopy`
+- Linux: `printf '%s' '/speckit.linear.clarify {ID}' | xclip -selection clipboard`
+- Windows: `printf '%s' '/speckit.linear.clarify {ID}' | clip`
+
+Print: `Copied to clipboard: /speckit.linear.clarify {ID}`

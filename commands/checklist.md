@@ -3,6 +3,7 @@ description: "Generate a requirements quality checklist for the specification"
 tools:
   - get_issue
   - list_comments
+  - list_issues
   - save_comment
 ---
 
@@ -95,7 +96,32 @@ Are all scenarios, edge cases, and roles addressed? Check error handling, bounda
 - If clarifications or analysis exist, check whether their findings are resolved in the latest specification.
 - If a plan exists, verify each task traces to a requirement.
 
-## Step 5: Post the checklist comment
+## Step 5: Auto-verify checklist items (autonomous resolution)
+
+Read the `resolution.enabled` setting from the extension config. If `false`, skip this step entirely.
+
+For each checklist item, dispatch sub-agents (using the Agent tool) to attempt verification. Batch items by dimension. Respect the `resolution.max_agents` config cap.
+
+Each sub-agent should research using the strategies defined in `resolution.strategies` (in order):
+1. **codebase** — use Glob, Grep, and Read to check if the item's requirement is addressed in the codebase or existing artifacts
+2. **linear** — cross-reference existing spec-kit artifact comments on the issue to verify whether the requirement is documented
+3. **web** — use WebSearch and WebFetch for items needing external validation (e.g., best practice compliance)
+
+Each sub-agent must return exactly one of:
+- `VERIFIED: {evidence}` — the checklist item can be checked off; provide the evidence
+- `UNVERIFIED: {reason}` — the item cannot be auto-verified; explain what's missing
+- `NEEDS-REVIEW: {context}` — partial evidence found but human review recommended
+
+After all sub-agents complete, update checklist items:
+- Verified: change `- [ ] CHK###` to `- [x] CHK###` and append `[auto-verified: {reason}]`
+- Unverified: keep as `- [ ] CHK###` (no change)
+- Needs review: keep as `- [ ] CHK###` and append `[needs-review: {context}]`
+
+Filter results based on `resolution.auto_resolve_threshold`:
+- `"high"` — only VERIFIED items are auto-checked
+- `"medium"` — both VERIFIED and NEEDS-REVIEW items are auto-checked
+
+## Step 6: Post the checklist comment
 
 Determine the version number:
 - If no previous checklist comment exists → `v1`
@@ -137,6 +163,7 @@ Summarize what was done:
 - Artifacts used: list which artifacts informed the checklist
 - Checklist version: `v{N}`
 - Item counts: {count} per dimension, {total} total
+- Resolution: {N} auto-verified, {N} needs-review, {N} unverified
 
 Then suggest the next step:
 
@@ -145,3 +172,10 @@ Next steps — pick one:
   /speckit.linear.tasks      — create Linear child issues from the plan
   /speckit.linear.specify    — re-run specify to address checklist gaps
 ```
+
+Then copy the recommended next command to the user's clipboard. Detect the platform and use the appropriate command:
+- macOS: `printf '%s' '/speckit.linear.tasks {ID}' | pbcopy`
+- Linux: `printf '%s' '/speckit.linear.tasks {ID}' | xclip -selection clipboard`
+- Windows: `printf '%s' '/speckit.linear.tasks {ID}' | clip`
+
+Print: `Copied to clipboard: /speckit.linear.tasks {ID}`

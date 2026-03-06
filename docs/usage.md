@@ -35,7 +35,6 @@ defaults:
   priority: 3        # Normal
   status: "Backlog"
   inherit_labels: true
-auto_branch: true
 ```
 
 The `mcp_server` value depends on your setup. Common values are `claude_ai_Linear` (Claude desktop) or `linear`.
@@ -60,7 +59,7 @@ Start with a Linear issue containing your rough requirements — notes, links, i
 /speckit.linear.implement BOT-141     # start coding a task
 ```
 
-After the first `specify`, subsequent commands can infer the issue from your git branch — no need to repeat the identifier.
+After each command, the recommended next command (with the issue ID) is copied to your clipboard — just paste to continue through the workflow.
 
 ### What gets created
 
@@ -90,8 +89,6 @@ Reads the issue description and comments, then posts a structured **Specificatio
 - Goals, User Stories, Acceptance Criteria
 - Scope (in/out), Technical Notes
 - Open Questions (if any)
-
-Also optionally creates a git branch (controlled by `auto_branch` config).
 
 **Input**: Required — Linear issue URL or identifier (e.g. `BOT-140` or full URL).
 
@@ -145,7 +142,7 @@ Child issues inherit the parent's team and optionally labels/priority/status fro
 
 Reads the parent issue's specification and plan, plus the target child task(s), and provides implementation guidance — what to build, where to start, dependencies, acceptance criteria, and testing approach.
 
-Accepts either a parent issue (implements all tasks) or a child task issue (implements just that task with parent context).
+Accepts either a parent issue (implements all tasks) or a child task issue (implements just that task with parent context). When implementing a single child task, automatically creates or checks out the branch from Linear's `branchName` field.
 
 **Requires**: Specification + Plan comments on the parent issue.
 
@@ -164,7 +161,6 @@ Config file: `.specify/extensions/linear/linear-config.yml`
 | `defaults.priority` | `3` | Priority: 0=None, 1=Urgent, 2=High, 3=Normal, 4=Low |
 | `defaults.status` | `Backlog` | Initial status for child issues |
 | `defaults.inherit_labels` | `true` | Copy parent issue's labels to children |
-| `auto_branch` | `true` | Prompt to create a git branch on `/specify` |
 
 ---
 
