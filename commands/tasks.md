@@ -15,11 +15,11 @@ You are creating Linear child issues from the implementation plan on a parent is
 
 ## Input
 
-The user provides a Linear issue URL or identifier as `{{ args }}`.
+The user provides a Linear issue URL or identifier as `{{ args }}`. If no argument is provided, the issue is inferred from the current git branch name.
 
 ## Step 1: Parse the issue identifier
 
-Extract the issue identifier from the input:
+**If `{{ args }}` is provided**, extract the issue identifier from the input:
 - `https://linear.app/{workspace}/issue/{ID}/{slug}` → use `{ID}`
 - `https://linear.app/{workspace}/issue/{ID}` → use `{ID}`
 - `BOT-140` (bare identifier) → use directly
@@ -29,6 +29,23 @@ If the input does not match any of these formats, stop with:
 Error: Could not parse Linear issue from "{{ args }}".
 Expected a Linear URL (https://linear.app/.../issue/BOT-140/...) or identifier (BOT-140).
 ```
+
+**If `{{ args }}` is empty**, infer the issue from the current git branch:
+1. Run `git branch --show-current` to get the branch name.
+2. If the result is empty (detached HEAD), stop with:
+   ```
+   Error: Cannot infer issue — HEAD is detached. Provide an issue identifier explicitly.
+   ```
+3. If the branch is `main`, `master`, or `develop`, stop with:
+   ```
+   Error: Cannot infer issue from default branch "{branch}". Provide an issue identifier explicitly.
+   ```
+4. Extract the first match of the pattern `[A-Za-z]+-[0-9]+` from the branch name and uppercase it to get the issue identifier.
+5. If no match is found, stop with:
+   ```
+   Error: Cannot infer issue from branch "{branch}" — no identifier found. Provide an issue identifier explicitly.
+   ```
+6. Print: `Inferred issue {ID} from branch "{branch}".`
 
 ## Step 2: Read the issue and plan comment
 
