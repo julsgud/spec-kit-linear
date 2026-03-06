@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.0] - 2026-03-06
+
+### Added
+
+- Next-step guidance in all command outputs — each command suggests what to run next
+
 ## [1.1.0] - 2026-03-06
 
 ### Added
