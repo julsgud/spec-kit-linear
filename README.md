@@ -24,19 +24,17 @@ Requires a Linear MCP server connected to your AI assistant.
 
 ## Commands
 
-All commands accept a Linear issue URL or identifier (e.g. `BOT-140`).
+All commands accept a Linear issue URL or identifier (e.g. `BOT-140`). For all commands except `specify`, if no argument is given the issue is inferred from the current git branch.
 
 | Command | What it does | Requires |
 |---------|-------------|----------|
-| `specify` | Synthesize a structured specification | — |
-| `clarify` | Identify gaps and questions | specification |
-| `analyze` | Cross-artifact consistency check | specification |
-| `plan` | Technical implementation plan with ordered tasks | specification |
-| `checklist` | Requirements quality checklist (interactive checkboxes) | specification |
-| `tasks` | Create Linear child issues from the plan (idempotent) | plan |
-| `implement` | Guide code implementation per task | specification + plan |
-
-Commands are prefixed with `/speckit.linear.` — e.g. `/speckit.linear.specify BOT-140`.
+| `/speckit.linear.specify` | Synthesize a structured specification | — |
+| `/speckit.linear.clarify` | Identify gaps and questions | specification |
+| `/speckit.linear.analyze` | Cross-artifact consistency check | specification |
+| `/speckit.linear.plan` | Technical implementation plan with ordered tasks | specification |
+| `/speckit.linear.checklist` | Requirements quality checklist (interactive checkboxes) | specification |
+| `/speckit.linear.tasks` | Create Linear child issues from the plan (idempotent) | plan |
+| `/speckit.linear.implement` | Guide code implementation per task | specification + plan |
 
 `clarify`, `analyze`, and `checklist` are optional — `plan` works with just a specification, though results improve with more context.
 
