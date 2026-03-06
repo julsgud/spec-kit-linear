@@ -15,9 +15,7 @@ Each command reads the issue and previous artifacts, then posts a versioned comm
 ## Installation
 
 ```bash
-# Symlink into your project's spec-kit extensions
-mkdir -p .specify/extensions
-ln -s /path/to/spec-kit-linear .specify/extensions/linear
+specify extension add julsgud/spec-kit-linear
 ```
 
 Requires a Linear MCP server connected to your AI assistant.
