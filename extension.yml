@@ -3,7 +3,7 @@ schema_version: "1.0"
 extension:
   id: "linear"
   name: "Linear Integration"
-  version: "1.0.0"
+  version: "1.1.0"
   description: "Linear-first spec-driven development — specs, plans, and tasks live as Linear issues and comments"
   author: "Julio Gudino"
   repository: "https://github.com/julsgud/spec-kit-linear"

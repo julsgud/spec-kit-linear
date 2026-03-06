@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.0] - 2026-03-06
+
+### Added
+
+- CI workflow validating extension manifest, command frontmatter, and required files
+- Usage guide at `docs/usage.md` with full workflow, configuration reference, and troubleshooting
+- README badges (CI status, spec-kit extension, license, latest release)
+- `.editorconfig` for consistent formatting
+
 ## [1.0.0] - 2026-03-05
 
 ### Added
